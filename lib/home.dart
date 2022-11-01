@@ -34,15 +34,15 @@ class _Home extends State<Home>{
                   context,
                   MaterialPageRoute(
                       builder: (_) => ModifyPlanta(plantas[index])))
-                  .then((newContact) {
-                if (newContact != null) {
+                  .then((newPlanta) {
+                if (newPlanta != null) {
                   setState(() {
                     plantas.removeAt(index);
 
-                    plantas.insert(index, newContact);
+                    plantas.insert(index, newPlanta);
 
                     message(
-                        context, newContact.name + " a sido modificado...!");
+                        context, newPlanta.nombre + " a sido modificado...!");
                   });
                 }
               });
@@ -50,35 +50,60 @@ class _Home extends State<Home>{
             onLongPress: () {
               removeClient(context, plantas[index]);
             },
-            title: Text(plantas[index].nombre + " " + plantas[index].n_riegos.toString()),
-            subtitle: Text(plantas[index].descripcion),
+            title: Text(plantas[index].nombre),
+            subtitle: Text(plantas[index].descripcion + "\nRiegos: " + plantas[index].n_riegos.toString()),
             leading: CircleAvatar(
               child: Text(plantas[index].nombre.substring(0, 1)),
             ),
-            trailing: Icon(
-              Icons.plus_one,
+            trailing: IconButton(
               color: Colors.green,
+              onPressed: () {
+                plantas[index].plusRiego();
+                setState(() {});
+              },
+              icon: Icon(Icons.plus_one, color: Colors.green),
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (_) => RegisterPlanta()))
-              .then((newPlanta) {
-            if (newPlanta != null) {
-              setState(() {
-                plantas.add(newPlanta);
-                message(
-                    context, newPlanta.nombre + " a sido guardado...!");
-              });
-            }
-          });
-        },
-        tooltip: "Agregar Planta",
-        child: Icon(Icons.add),
-      ),
+        floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                backgroundColor: Colors.white60,
+                child: Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                ),
+                onPressed: () {
+                  for(final planta in plantas){
+                    planta.resetRiego();
+                  }
+                  setState(() {});
+                },
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (_) => RegisterPlanta()))
+                      .then((newPlanta) {
+                    if (newPlanta != null) {
+                      setState(() {
+                        plantas.add(newPlanta);
+                        message(
+                            context, newPlanta.nombre + " a sido guardado...!");
+                      });
+                    }
+                  });
+                },
+                tooltip: "Agregar Planta",
+                child: Icon(Icons.add),
+              )
+            ]
+        )
     );
   }
 
@@ -120,6 +145,22 @@ class Planta {
   var nombre;
   var descripcion;
   var n_riegos;
+
+  Map<String,dynamic> get map {
+    return {
+      "nombre": nombre,
+      "descripcion": descripcion,
+      "n_riegos": n_riegos,
+    };
+  }
+
+  void plusRiego(){
+    n_riegos = n_riegos + 1;
+  }
+
+  void resetRiego(){
+    n_riegos = 0;
+  }
 
   Planta({this.nombre, this.descripcion, this.n_riegos});
 }
